@@ -1,9 +1,9 @@
-package day1
+package `2021`.day1
 
 import java.io.File
 
 internal val sampleInput = listOf(199, 200, 208, 210, 200, 207, 240, 269, 260, 263)
-internal val submarineReport = File("src/main/resources/day1.txt")
+internal val submarineReport = File("src/main/resources/2021/day1.txt")
     .readLines()
     .map { it.toInt() }
 

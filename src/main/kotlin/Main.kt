@@ -1,5 +1,5 @@
-import day1.day1
-import day2.day2
+import `2021`.day1.day1
+import `2021`.day2.day2
 
 fun main(args: Array<String>) {
     day1()

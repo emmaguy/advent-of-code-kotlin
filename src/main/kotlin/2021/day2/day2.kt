@@ -1,4 +1,4 @@
-package day2
+package `2021`.day2
 
 import java.io.File
 
@@ -10,7 +10,7 @@ internal val submarineSampleInput = listOf(
     "down 8",
     "forward 2"
 )
-internal val submarineInput = File("src/main/resources/day2.txt").readLines()
+internal val submarineInput = File("src/main/resources/2021/day2.txt").readLines()
 
 fun day2() {
     part2(submarineInput)
