@@ -13,14 +13,10 @@ internal const val bingoBoardSize = 5
 fun main() {
     val (numbers, boards) = bingoBoards
 
-    part1(numbers, boards)
+    part2(numbers, boards)
 }
 
-internal fun part2() {
-
-}
-
-internal fun part1(numbers: List<Int>, boards: List<BingoBoard>) {
+internal fun part2(numbers: List<Int>, boards: List<BingoBoard>) {
     val (winningBoard, calledNumber) = playBingo(numbers, boards)
 
     // Calculate score
@@ -29,20 +25,26 @@ internal fun part1(numbers: List<Int>, boards: List<BingoBoard>) {
 }
 
 internal fun playBingo(numbers: List<Int>, boards: List<BingoBoard>): Pair<BingoBoard, Int> {
+    val wonBoards = mutableSetOf<BingoBoard>()
     numbers.forEach { calledNumber ->
         for (board in boards) {
-            for ((rowIndex, row) in board.rows.withIndex()) {
-                for ((columnIndex, item) in row.withIndex()) {
-                    if (item.number == calledNumber) {
-                        item.isMarked = true
-                        board.markedRows[rowIndex] = (board.markedRows[rowIndex] ?: 0) + 1
-                        board.markedColumns[columnIndex] = (board.markedColumns[columnIndex] ?: 0) + 1
+            if (!board.hasWon()) {
+                for ((rowIndex, row) in board.rows.withIndex()) {
+                    for ((columnIndex, item) in row.withIndex()) {
+                        if (item.number == calledNumber) {
+                            item.isMarked = true
+                            board.markedRows[rowIndex] = (board.markedRows[rowIndex] ?: 0) + 1
+                            board.markedColumns[columnIndex] = (board.markedColumns[columnIndex] ?: 0) + 1
+                        }
                     }
                 }
             }
             if (board.hasWon()) {
                 println("bingo! (on number $calledNumber)")
-                return Pair(board, calledNumber)
+                wonBoards.add(board)
+                if (wonBoards.size == boards.size) {
+                    return Pair(board, calledNumber)
+                }
             }
         }
     }
