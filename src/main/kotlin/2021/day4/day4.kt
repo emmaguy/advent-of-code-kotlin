@@ -40,31 +40,24 @@ internal fun playBingo(numbers: List<Int>, boards: List<BingoBoard>): Pair<Bingo
                     }
                 }
             }
-        }
-        val winningBoard = hasWon(boards)
-        if (winningBoard != null) {
-            println("bingo! (on number $calledNumber)")
-            return Pair(winningBoard, calledNumber)
+            if (board.hasWon()) {
+                println("bingo! (on number $calledNumber)")
+                return Pair(board, calledNumber)
+            }
         }
     }
     throw RuntimeException("No winners :(")
-}
-
-internal fun hasWon(boards: List<BingoBoard>): BingoBoard? {
-    for (board in boards) {
-        if (board.markedColumns.any { it.value == bingoBoardSize }
-            || board.markedRows.any { it.value == bingoBoardSize }) {
-            return board
-        }
-    }
-    return null
 }
 
 data class BingoBoard(
     val rows: List<List<BingoItem>>,
     val markedRows: MutableMap<Int, Int>,
     val markedColumns: MutableMap<Int, Int>,
-)
+) {
+    fun hasWon(): Boolean {
+        return markedColumns.any { it.value == bingoBoardSize } || markedRows.any { it.value == bingoBoardSize }
+    }
+}
 
 data class BingoItem(val number: Int, var isMarked: Boolean)
 
