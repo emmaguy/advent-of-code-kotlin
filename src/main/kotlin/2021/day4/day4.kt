@@ -2,32 +2,22 @@ package `2021`.day4
 
 import java.io.File
 
-internal val bingoSample = File("src/main/resources/2021/day4-sample.txt")
-    .readLines()
-    .toBingoInput()
-internal val bingoBoards = File("src/main/resources/2021/day4.txt")
-    .readLines()
-    .toBingoInput()
+internal val bingoSample = File("src/main/resources/2021/day4-sample.txt").readLines()
+internal val bingoInput = File("src/main/resources/2021/day4.txt").readLines()
+
 internal const val bingoBoardSize = 5
 
 fun main() {
-    val (numbers, boards) = bingoBoards
-
-    part2(numbers, boards)
+    playBingo(firstBoardWins = true, input = bingoInput.toBingoInput())
+    playBingo(firstBoardWins = false, input = bingoInput.toBingoInput())
 }
 
-internal fun part2(numbers: List<Int>, boards: List<BingoBoard>) {
-    val (winningBoard, calledNumber) = playBingo(numbers, boards)
+internal fun playBingo(firstBoardWins: Boolean = true, input: Pair<List<Int>, List<BingoBoard>>) {
+    val (numbers, boards) = input
 
-    // Calculate score
-    val unmarkedNumbers = winningBoard.rows.flatten().filter { !it.isMarked }.sumOf { it.number }
-    println("unmarkedNumbers: $unmarkedNumbers, total: ${calledNumber * unmarkedNumbers}")
-}
-
-internal fun playBingo(numbers: List<Int>, boards: List<BingoBoard>): Pair<BingoBoard, Int> {
     val wonBoards = mutableSetOf<BingoBoard>()
     numbers.forEach { calledNumber ->
-        for (board in boards) {
+        for ((boardIndex, board) in boards.withIndex()) {
             if (!board.hasWon()) {
                 for ((rowIndex, row) in board.rows.withIndex()) {
                     for ((columnIndex, item) in row.withIndex()) {
@@ -40,10 +30,12 @@ internal fun playBingo(numbers: List<Int>, boards: List<BingoBoard>): Pair<Bingo
                 }
             }
             if (board.hasWon()) {
-                println("bingo! (on number $calledNumber)")
+//                println("bingo! (on number $calledNumber, board: ${boardIndex})")
                 wonBoards.add(board)
-                if (wonBoards.size == boards.size) {
-                    return Pair(board, calledNumber)
+                if (firstBoardWins || wonBoards.size == boards.size) {
+                    val unmarkedNumbers = board.rows.flatten().filter { !it.isMarked }.sumOf { it.number }
+                    println("total: ${calledNumber * unmarkedNumbers}")
+                    return
                 }
             }
         }
