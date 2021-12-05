@@ -23,9 +23,8 @@ internal fun calculatePoints(input: List<Pair<Int, Int>>) {
 
 internal fun List<String>.toInput(includeDiagonals: Boolean): List<Pair<Int, Int>> {
     return flatMap { line ->
-        val split = line.split(" ")
-        val start = split[0].split(",")
-        val end = split[2].split(",")
+        val start = line.split(" ")[0].split(",")
+        val end = line.split(" ")[2].split(",")
 
         val x1 = start[0].toInt()
         val y1 = start[1].toInt()
@@ -34,9 +33,9 @@ internal fun List<String>.toInput(includeDiagonals: Boolean): List<Pair<Int, Int
         val y2 = end[1].toInt()
 
         if (x1 == x2) {
-            (if (y2 > y1) (y1..y2) else (y2..y1)).map { Pair(x1, it) }
+            rangeFromSmallest(y1, y2).map { Pair(x1, it) }
         } else if (y1 == y2) {
-            (if (x2 > x1) (x1..x2) else (x2..x1)).map { Pair(it, y1) }
+            rangeFromSmallest(x1, x2).map { Pair(it, y1) }
         } else {
             if (includeDiagonals) {
                 val diff = if (x2 > x1) x2 - x1 else x1 - x2
@@ -58,4 +57,8 @@ internal fun List<String>.toInput(includeDiagonals: Boolean): List<Pair<Int, Int
             }
         }
     }
+}
+
+private fun rangeFromSmallest(y1: Int, y2: Int): IntRange {
+    return (if (y2 > y1) (y1..y2) else (y2..y1))
 }
