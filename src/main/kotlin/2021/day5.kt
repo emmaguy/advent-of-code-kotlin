@@ -8,7 +8,8 @@ internal val ventLines = File("src/main/resources/2021/day5.txt")
     .readLines()
 
 fun main() {
-    calculatePoints(ventLines.toInputPart2())
+    calculatePoints(ventLines.toInput(includeDiagonals = false))
+    calculatePoints(ventLines.toInput(includeDiagonals = true))
 }
 
 internal fun calculatePoints(input: List<Pair<Int, Int>>) {
@@ -20,8 +21,7 @@ internal fun calculatePoints(input: List<Pair<Int, Int>>) {
     println("points: ${frequencyMap.count { it.value >= 2 }}")
 }
 
-// Horizontal and diagonal only
-internal fun List<String>.toInputPart1(): List<Pair<Int, Int>> {
+internal fun List<String>.toInput(includeDiagonals: Boolean): List<Pair<Int, Int>> {
     return flatMap { line ->
         val split = line.split(" ")
         val start = split[0].split(",")
@@ -38,42 +38,23 @@ internal fun List<String>.toInputPart1(): List<Pair<Int, Int>> {
         } else if (y1 == y2) {
             (if (x2 > x1) (x1..x2) else (x2..x1)).map { Pair(it, y1) }
         } else {
-            emptyList()
-        }
-    }
-}
-
-internal fun List<String>.toInputPart2(): List<Pair<Int, Int>> {
-    return flatMap { line ->
-        val split = line.split(" ")
-        val start = split[0].split(",")
-        val end = split[2].split(",")
-
-        val x1 = start[0].toInt()
-        val y1 = start[1].toInt()
-
-        val x2 = end[0].toInt()
-        val y2 = end[1].toInt()
-
-        if (x1 == x2) {
-            (if (y2 > y1) (y1..y2) else (y2..y1)).map { Pair(x1, it) }
-        } else if (y1 == y2) {
-            (if (x2 > x1) (x1..x2) else (x2..x1)).map { Pair(it, y1) }
-        } else {
-            val diff = if (x2 > x1) x2 - x1 else x1 - x2
-
-            (0..diff).map {
-                val x = if (x2 > x1) {
-                    x1 + it
-                } else {
-                    x1 - it
+            if (includeDiagonals) {
+                val diff = if (x2 > x1) x2 - x1 else x1 - x2
+                (0..diff).map {
+                    val x = if (x2 > x1) {
+                        x1 + it
+                    } else {
+                        x1 - it
+                    }
+                    val y = if (y2 > y1) {
+                        y1 + it
+                    } else {
+                        y1 - it
+                    }
+                    Pair(x, y)
                 }
-                val y = if (y2 > y1) {
-                    y1 + it
-                } else {
-                    y1 - it
-                }
-                Pair(x, y)
+            } else {
+                emptyList()
             }
         }
     }
