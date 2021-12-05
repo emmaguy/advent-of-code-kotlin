@@ -21,6 +21,7 @@ internal fun calculatePoints(input: List<Pair<Int, Int>>) {
     println("points: ${frequencyMap.count { it.value >= 2 }}")
 }
 
+// Parse the points and calculate the ones in between
 internal fun List<String>.toInput(includeDiagonals: Boolean): List<Pair<Int, Int>> {
     return flatMap { line ->
         val start = line.split(" ")[0].split(",")
@@ -38,7 +39,7 @@ internal fun List<String>.toInput(includeDiagonals: Boolean): List<Pair<Int, Int
             rangeFromSmallest(x1, x2).map { Pair(it, y1) }
         } else {
             if (includeDiagonals) {
-                val diff = if (x2 > x1) x2 - x1 else x1 - x2
+                val diff = distanceToMove(x1, x2)
                 (0..diff).map {
                     val x = if (x2 > x1) {
                         x1 + it
@@ -57,6 +58,10 @@ internal fun List<String>.toInput(includeDiagonals: Boolean): List<Pair<Int, Int
             }
         }
     }
+}
+
+fun distanceToMove(x1: Int, x2: Int): Int {
+    return if (x2 > x1) x2 - x1 else x1 - x2
 }
 
 private fun rangeFromSmallest(y1: Int, y2: Int): IntRange {
