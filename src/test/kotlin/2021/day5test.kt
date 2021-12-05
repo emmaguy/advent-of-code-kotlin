@@ -29,4 +29,14 @@ class Day5Test {
         val input = listOf("8,0 -> 0,8").toInputPart1()
         assertEquals(input, emptyList())
     }
+
+    @Test fun `vertical increasing`() {
+        val input = listOf("1,1 -> 3,3").toInputPart2()
+        assertEquals(input, listOf(1 to 1, 2 to 2, 3 to 3))
+    }
+
+    @Test fun `vertical decreasing`() {
+        val input = listOf("9,7 -> 7,9").toInputPart2()
+        assertEquals(input, listOf(9 to 7, 8 to 8, 7 to 9))
+    }
 }
