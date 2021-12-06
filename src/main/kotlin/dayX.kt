@@ -1,3 +1,7 @@
+import java.io.File
+
+internal val ventLines = File("src/main/resources/2021/dayX.txt").readLines()
+
 fun dayX() {
     part1()
 }
