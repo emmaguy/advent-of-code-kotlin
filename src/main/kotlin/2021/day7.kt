@@ -25,11 +25,18 @@ internal fun part1(positions: List<Int>) {
     for (position in positions) {
         val map = mutableMapOf<Int, Int>()
         for (p in minPosition until maxPosition) {
-            if (position > p) {
-                map[p] = position - p
+            val x = if (position > p) {
+                position - p
             } else {
-                map[p] = p - position
+                p - position
             }
+            var amount = 0
+            var fuelCost = 1
+            for(i in 0 until x){
+                amount += fuelCost
+                fuelCost++
+            }
+            map[p] = amount
         }
         fuelCosts.add(map)
     }
