@@ -14,9 +14,9 @@ fun main() {
 
 internal fun List<String>.parse(): List<Int> {
     val entries = mutableListOf<Int>()
-    forEach {
-        println("it is: $it")
-        val split = it.split("|")
+    forEach { entry ->
+        println("it is: $entry")
+        val split = entry.split("|")
         val signalPatterns = split[0].trim().split(" ")
         val output = split[1].trim().split(" ")
 
@@ -24,10 +24,6 @@ internal fun List<String>.parse(): List<Int> {
         val four = signalPatterns.first { it.length == 4 }
         val seven = signalPatterns.first { it.length == 3 }
         val eight = signalPatterns.first { it.length == 7 }
-
-        // difference between one and seven tells us 'a'
-        val a = (seven.toSet() subtract one.toSet()).first()
-        println("seven is $seven, one is $one, so a is $a")
 
         val fiveTwoOrThree = signalPatterns.filter { it.length == 5 }
         val zeroNineOrSix = signalPatterns.filter { it.length == 6 }
@@ -64,8 +60,8 @@ internal fun List<String>.parse(): List<Int> {
         println("zero is $zero")
 
         // 6 is left
-        val six =
-            mutableListOf(*zeroNineOrSix.toTypedArray()).first { it.toSet() != nine.toSet() && it.toSet() != zero.toSet() }
+        val six = mutableListOf(*zeroNineOrSix.toTypedArray())
+            .first { it.toSet() != nine.toSet() && it.toSet() != zero.toSet() }
         println("six is $six")
 
         val digits = mutableListOf<Int>()
