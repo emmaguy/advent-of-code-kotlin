@@ -1,15 +1,14 @@
 import java.io.File
 
-internal val ventLines = File("src/main/resources/2021/dayX.txt").readLines()
+internal val xInput = File("src/main/resources/2021/dayX-sample.txt")
+    .readLines()
+internal val xSample = File("src/main/resources/2021/dayX.txt")
+    .readLines()
 
-fun dayX() {
-    part1()
+fun main() {
+
 }
 
-internal fun part2() {
-
-}
-
-internal fun part1() {
-
+internal fun List<String>.toWhatever(): List<Int> {
+    return first().split(",").map { it.toInt() }
 }
