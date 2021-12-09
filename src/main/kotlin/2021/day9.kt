@@ -20,21 +20,20 @@ fun part1(heightmap: List<String>) {
 internal fun List<String>.toHeightmap(): List<Point> {
     val points = mutableListOf<Point>()
     for (rowIndex in 0 until this.size) {
-        val row = this[rowIndex]
-        for ((index, digit) in row.withIndex()) {
+        for ((columnIndex, digit) in this[rowIndex].withIndex()) {
             // Look up down left right for adjacent friends
             val adjacentValues = mutableListOf<Int>()
-            index(index, rowIndex, Direction.LEFT).takeIf { it >= 0 }?.let {
-                adjacentValues.add(row[it].digitToInt())
+            index(size, columnIndex, rowIndex, Direction.LEFT)?.let {
+                adjacentValues.add(this[rowIndex][it].digitToInt())
             }
-            index(index, rowIndex, Direction.RIGHT).takeIf { it < row.length }?.let {
-                adjacentValues.add(row[it].digitToInt())
+            index(size, columnIndex, rowIndex, Direction.RIGHT)?.let {
+                adjacentValues.add(this[rowIndex][it].digitToInt())
             }
-            index(index, rowIndex, Direction.UP).takeIf { it >= 0 }?.let {
-                adjacentValues.add(this[it][index].digitToInt())
+            index(size, columnIndex, rowIndex, Direction.UP)?.let {
+                adjacentValues.add(this[it][columnIndex].digitToInt())
             }
-            index(index, rowIndex, Direction.DOWN).takeIf { it < size }?.let {
-                adjacentValues.add(this[it][index].digitToInt())
+            index(size, columnIndex, rowIndex, Direction.DOWN)?.let {
+                adjacentValues.add(this[it][columnIndex].digitToInt())
             }
 
             println("$digit has adjacent values ${adjacentValues.joinToString(",")}")
@@ -44,12 +43,17 @@ internal fun List<String>.toHeightmap(): List<Point> {
     return points
 }
 
-private fun index(columnIndex: Int, rowIndex: Int, direction: Direction): Int {
-    return when (direction) {
+private fun index(size: Int, columnIndex: Int, rowIndex: Int, direction: Direction): Int? {
+    val index = when (direction) {
         Direction.UP -> rowIndex - 1
         Direction.DOWN -> rowIndex + 1
         Direction.LEFT -> columnIndex - 1
         Direction.RIGHT -> columnIndex + 1
+    }
+    return if (direction == Direction.UP || direction == Direction.DOWN) {
+        if (index in 0 until size) index else null
+    } else {
+        if (index in 0 until size) index else null
     }
 }
 
