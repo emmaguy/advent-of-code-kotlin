@@ -11,10 +11,14 @@ fun main() {
 }
 
 fun part1(heightmap: List<String>) {
-    val lowPoints = heightmap.toHeightmap().filter { point -> point.adjacentPoints.all { point.value < it } }
+    val points = heightmap.toHeightmap()
+//    println("all points: ${points.joinToString("\n")}")
+
+    val lowPoints = points.filter { point -> point.adjacentPoints.all { point.value < it } }
     val sumRiskLevels = lowPoints.sumOf { it.value + 1 }
 
-    println("sumRiskLevels: $sumRiskLevels, lowPoints: $lowPoints")
+    println("sumRiskLevels: $sumRiskLevels")
+    println("low points: ${lowPoints.joinToString("\n")}")
 }
 
 internal fun List<String>.toHeightmap(): List<Point> {
@@ -31,14 +35,21 @@ internal fun List<String>.toHeightmap(): List<Point> {
                         adjacentValues.add(this[r][c].digitToInt())
                     }
                 } else {
-                    if (c in indices) {
+                    if (c >= 0 && c < this[rowIndex].length) {
                         adjacentValues.add(this[r][c].digitToInt())
                     }
                 }
             }
 
-            println("$digit has adjacent values ${adjacentValues.joinToString(",")}")
-            points.add(Point(digit.digitToInt(), adjacentValues))
+//            println("$digit has adjacent values ${adjacentValues.joinToString(",")}")
+            points.add(
+                Point(
+                    value = digit.digitToInt(),
+                    adjacentPoints = adjacentValues,
+                    columnIndex = columnIndex,
+                    rowIndex = rowIndex
+                )
+            )
         }
     }
     return points
@@ -54,4 +65,4 @@ private fun getIndex(columnIndex: Int, rowIndex: Int, direction: Direction): Pai
 }
 
 enum class Direction { UP, DOWN, LEFT, RIGHT }
-data class Point(val value: Int, val adjacentPoints: List<Int>)
+data class Point(val value: Int, val adjacentPoints: List<Int>, val columnIndex: Int, val rowIndex: Int)
