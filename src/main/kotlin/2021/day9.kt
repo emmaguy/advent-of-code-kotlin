@@ -25,8 +25,15 @@ internal fun List<String>.toHeightmap(): List<Point> {
 
             // Move if we can in all directions
             Direction.values().forEach { direction ->
-                index(size, columnIndex, rowIndex, direction)?.let { (row, column) ->
-                    adjacentValues.add(this[row][column].digitToInt())
+                val (r, c) = getIndex(columnIndex, rowIndex, direction)
+                if (direction == Direction.UP || direction == Direction.DOWN) {
+                    if (r in indices) {
+                        adjacentValues.add(this[r][c].digitToInt())
+                    }
+                } else {
+                    if (c in indices) {
+                        adjacentValues.add(this[r][c].digitToInt())
+                    }
                 }
             }
 
@@ -37,17 +44,12 @@ internal fun List<String>.toHeightmap(): List<Point> {
     return points
 }
 
-private fun index(size: Int, columnIndex: Int, rowIndex: Int, direction: Direction): Pair<Int, Int>? {
-    val index = when (direction) {
-        Direction.UP -> rowIndex - 1
-        Direction.DOWN -> rowIndex + 1
-        Direction.LEFT -> columnIndex - 1
-        Direction.RIGHT -> columnIndex + 1
-    }
-    return if (direction == Direction.UP || direction == Direction.DOWN) {
-        if (index in 0 until size) index to columnIndex else null
-    } else {
-        if (index in 0 until size) rowIndex to index else null
+private fun getIndex(columnIndex: Int, rowIndex: Int, direction: Direction): Pair<Int, Int> {
+    return when (direction) {
+        Direction.UP -> rowIndex - 1 to columnIndex
+        Direction.DOWN -> rowIndex + 1 to columnIndex
+        Direction.LEFT -> rowIndex to columnIndex - 1
+        Direction.RIGHT -> rowIndex to columnIndex + 1
     }
 }
 
