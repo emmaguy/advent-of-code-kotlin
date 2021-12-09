@@ -45,31 +45,23 @@ internal fun move(
     basinValues: MutableList<Int>,
     visited: MutableSet<Pair<Int, Int>>
 ) {
-    val (r, c) = getIndex(columnIndex, rowIndex, direction)
+    val (r, c) = moveToIndex(columnIndex, rowIndex, direction)
     if (visited.contains(r to c)) return
-    if (direction == Direction.UP || direction == Direction.DOWN) {
-        if (r >= 0 && r < heightmap.size) {
-            visited.add(r to c)
-            val element = heightmap[r][c].digitToInt()
-            if (element != 9) {
-                basinValues.add(element)
-                move(c, r, Direction.DOWN, heightmap, basinValues, visited)
-                move(c, r, Direction.UP, heightmap, basinValues, visited)
-                move(c, r, Direction.LEFT, heightmap, basinValues, visited)
-                move(c, r, Direction.RIGHT, heightmap, basinValues, visited)
-            }
-        }
-    } else {
-        if (c >= 0 && c < heightmap[rowIndex].length) {
-            visited.add(r to c)
-            val element = heightmap[r][c].digitToInt()
-            if (element != 9) {
-                basinValues.add(element)
-                move(c, r, Direction.DOWN, heightmap, basinValues, visited)
-                move(c, r, Direction.UP, heightmap, basinValues, visited)
-                move(c, r, Direction.LEFT, heightmap, basinValues, visited)
-                move(c, r, Direction.RIGHT, heightmap, basinValues, visited)
-            }
+
+    val valid = ((direction == Direction.UP || direction == Direction.DOWN) &&
+            r >= 0 && r < heightmap.size)
+            || ((direction == Direction.LEFT || direction == Direction.RIGHT) &&
+            c >= 0 && c < heightmap[rowIndex].length)
+
+    if (valid) {
+        visited.add(r to c)
+        val element = heightmap[r][c].digitToInt()
+        if (element != 9) {
+            basinValues.add(element)
+            move(c, r, Direction.DOWN, heightmap, basinValues, visited)
+            move(c, r, Direction.UP, heightmap, basinValues, visited)
+            move(c, r, Direction.LEFT, heightmap, basinValues, visited)
+            move(c, r, Direction.RIGHT, heightmap, basinValues, visited)
         }
     }
 }
@@ -82,7 +74,7 @@ internal fun List<String>.toHeightmap(): List<Point> {
 
             // Move if we can in all directions
             Direction.values().forEach { direction ->
-                val (r, c) = getIndex(columnIndex, rowIndex, direction)
+                val (r, c) = moveToIndex(columnIndex, rowIndex, direction)
                 if (direction == Direction.UP || direction == Direction.DOWN) {
                     if (r in indices) {
                         adjacentValues.add(this[r][c].digitToInt())
@@ -107,7 +99,7 @@ internal fun List<String>.toHeightmap(): List<Point> {
     return points
 }
 
-private fun getIndex(columnIndex: Int, rowIndex: Int, direction: Direction): Pair<Int, Int> {
+private fun moveToIndex(columnIndex: Int, rowIndex: Int, direction: Direction): Pair<Int, Int> {
     return when (direction) {
         Direction.UP -> rowIndex - 1 to columnIndex
         Direction.DOWN -> rowIndex + 1 to columnIndex
