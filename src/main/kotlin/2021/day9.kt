@@ -6,19 +6,72 @@ internal val heightmapInput = File("src/main/resources/2021/day9.txt").readLines
 internal val heightmapSample = File("src/main/resources/2021/day9-sample.txt").readLines()
 
 fun main() {
-    part1(heightmapSample)
-    part1(heightmapInput)
+    solve(heightmapSample)
+    solve(heightmapInput)
 }
 
-fun part1(heightmap: List<String>) {
+fun solve(heightmap: List<String>) {
     val points = heightmap.toHeightmap()
-//    println("all points: ${points.joinToString("\n")}")
-
     val lowPoints = points.filter { point -> point.adjacentPoints.all { point.value < it } }
     val sumRiskLevels = lowPoints.sumOf { it.value + 1 }
 
     println("sumRiskLevels: $sumRiskLevels")
-    println("low points: ${lowPoints.joinToString("\n")}")
+    println("low points: \n${lowPoints.joinToString("\n")}")
+    val basins = mutableListOf<MutableList<Int>>()
+
+    for (point in lowPoints) {
+        val visited = mutableSetOf<Pair<Int, Int>>()
+        val basinValues = mutableListOf<Int>()
+
+        // Move if we can in all directions
+        Direction.values().forEach { direction ->
+            move(point.columnIndex, point.rowIndex, direction, heightmap, basinValues, visited)
+        }
+
+        println("basin points: ${basinValues.joinToString(",")}")
+        basins.add(basinValues)
+    }
+
+    basins.sortByDescending { it.size }
+    val product = basins.take(3).map { it.size }.reduce { acc, i -> acc * i }
+    println("$product")
+}
+
+internal fun move(
+    columnIndex: Int,
+    rowIndex: Int,
+    direction: Direction,
+    heightmap: List<String>,
+    basinValues: MutableList<Int>,
+    visited: MutableSet<Pair<Int, Int>>
+) {
+    val (r, c) = getIndex(columnIndex, rowIndex, direction)
+    if (visited.contains(r to c)) return
+    if (direction == Direction.UP || direction == Direction.DOWN) {
+        if (r >= 0 && r < heightmap.size) {
+            visited.add(r to c)
+            val element = heightmap[r][c].digitToInt()
+            if (element != 9) {
+                basinValues.add(element)
+                move(c, r, Direction.DOWN, heightmap, basinValues, visited)
+                move(c, r, Direction.UP, heightmap, basinValues, visited)
+                move(c, r, Direction.LEFT, heightmap, basinValues, visited)
+                move(c, r, Direction.RIGHT, heightmap, basinValues, visited)
+            }
+        }
+    } else {
+        if (c >= 0 && c < heightmap[rowIndex].length) {
+            visited.add(r to c)
+            val element = heightmap[r][c].digitToInt()
+            if (element != 9) {
+                basinValues.add(element)
+                move(c, r, Direction.DOWN, heightmap, basinValues, visited)
+                move(c, r, Direction.UP, heightmap, basinValues, visited)
+                move(c, r, Direction.LEFT, heightmap, basinValues, visited)
+                move(c, r, Direction.RIGHT, heightmap, basinValues, visited)
+            }
+        }
+    }
 }
 
 internal fun List<String>.toHeightmap(): List<Point> {
@@ -41,7 +94,6 @@ internal fun List<String>.toHeightmap(): List<Point> {
                 }
             }
 
-//            println("$digit has adjacent values ${adjacentValues.joinToString(",")}")
             points.add(
                 Point(
                     value = digit.digitToInt(),
