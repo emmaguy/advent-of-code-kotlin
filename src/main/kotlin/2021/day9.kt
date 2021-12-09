@@ -21,19 +21,13 @@ internal fun List<String>.toHeightmap(): List<Point> {
     val points = mutableListOf<Point>()
     for (rowIndex in 0 until this.size) {
         for ((columnIndex, digit) in this[rowIndex].withIndex()) {
-            // Look up down left right for adjacent friends
             val adjacentValues = mutableListOf<Int>()
-            index(size, columnIndex, rowIndex, Direction.LEFT)?.let {
-                adjacentValues.add(this[it.first][it.second].digitToInt())
-            }
-            index(size, columnIndex, rowIndex, Direction.RIGHT)?.let {
-                adjacentValues.add(this[it.first][it.second].digitToInt())
-            }
-            index(size, columnIndex, rowIndex, Direction.UP)?.let {
-                adjacentValues.add(this[it.first][it.second].digitToInt())
-            }
-            index(size, columnIndex, rowIndex, Direction.DOWN)?.let {
-                adjacentValues.add(this[it.first][it.second].digitToInt())
+
+            // Move if we can in all directions
+            Direction.values().forEach { direction ->
+                index(size, columnIndex, rowIndex, direction)?.let { (row, column) ->
+                    adjacentValues.add(this[row][column].digitToInt())
+                }
             }
 
             println("$digit has adjacent values ${adjacentValues.joinToString(",")}")
