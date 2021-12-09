@@ -24,16 +24,16 @@ internal fun List<String>.toHeightmap(): List<Point> {
             // Look up down left right for adjacent friends
             val adjacentValues = mutableListOf<Int>()
             index(size, columnIndex, rowIndex, Direction.LEFT)?.let {
-                adjacentValues.add(this[rowIndex][it].digitToInt())
+                adjacentValues.add(this[it.first][it.second].digitToInt())
             }
             index(size, columnIndex, rowIndex, Direction.RIGHT)?.let {
-                adjacentValues.add(this[rowIndex][it].digitToInt())
+                adjacentValues.add(this[it.first][it.second].digitToInt())
             }
             index(size, columnIndex, rowIndex, Direction.UP)?.let {
-                adjacentValues.add(this[it][columnIndex].digitToInt())
+                adjacentValues.add(this[it.first][it.second].digitToInt())
             }
             index(size, columnIndex, rowIndex, Direction.DOWN)?.let {
-                adjacentValues.add(this[it][columnIndex].digitToInt())
+                adjacentValues.add(this[it.first][it.second].digitToInt())
             }
 
             println("$digit has adjacent values ${adjacentValues.joinToString(",")}")
@@ -43,7 +43,7 @@ internal fun List<String>.toHeightmap(): List<Point> {
     return points
 }
 
-private fun index(size: Int, columnIndex: Int, rowIndex: Int, direction: Direction): Int? {
+private fun index(size: Int, columnIndex: Int, rowIndex: Int, direction: Direction): Pair<Int, Int>? {
     val index = when (direction) {
         Direction.UP -> rowIndex - 1
         Direction.DOWN -> rowIndex + 1
@@ -51,9 +51,9 @@ private fun index(size: Int, columnIndex: Int, rowIndex: Int, direction: Directi
         Direction.RIGHT -> columnIndex + 1
     }
     return if (direction == Direction.UP || direction == Direction.DOWN) {
-        if (index in 0 until size) index else null
+        if (index in 0 until size) index to columnIndex else null
     } else {
-        if (index in 0 until size) index else null
+        if (index in 0 until size) rowIndex to index else null
     }
 }
 
