@@ -68,45 +68,6 @@ private fun part2(input: List<String>) {
     println("part 2 middle score: ${rows[rows.size / 2]}")
 }
 
-// Checks the node and all children below are valid, returns first non-valid char
-private fun Node<Char>.findFirstNonValidChar(): Char? {
-    openToClose.forEach { (openChar, closeChar) ->
-        val opens = children.filter { it.value == openChar }
-        val closes = children.filter { it.value == closeChar }
-        if (closes.size > opens.size) {
-            return closeChar
-        }
-    }
-
-    for (c in children) {
-        // any close brackets without an open?
-        c.findFirstNonValidChar()?.let { return it }
-    }
-    return null
-}
-
-private fun part1(input: List<String>) {
-    val score = input.mapNotNull { row ->
-        val root = Node(row[0])
-        var currentNode = root
-        for (i in 1 until row.length) {
-            val char = row[i]
-            val node = Node(char)
-            if (openToClose.containsKey(char)) { // Open char e.g. '('
-                currentNode.addChild(node)
-                currentNode = node
-            } else {
-                val parent = currentNode.parent ?: break
-                parent.addChild(node)
-                currentNode = parent
-            }
-        }
-        root.findFirstNonValidChar()
-    }.sumOf { illegalCharScores[it]!! }
-
-    println("part1 score: $score")
-}
-
 private fun Node<Char>.missingCloseChars(): List<Char>? {
     if (children.isEmpty()) return emptyList()
 
@@ -131,6 +92,45 @@ private fun Node<Char>.missingCloseChars(): List<Char>? {
         chars.add(openToClose[value]!!)
     }
     return chars
+}
+
+private fun part1(input: List<String>) {
+    val score = input.mapNotNull { row ->
+        val root = Node(row[0])
+        var currentNode = root
+        for (i in 1 until row.length) {
+            val char = row[i]
+            val node = Node(char)
+            if (openToClose.containsKey(char)) { // Open char e.g. '('
+                currentNode.addChild(node)
+                currentNode = node
+            } else {
+                val parent = currentNode.parent ?: break
+                parent.addChild(node)
+                currentNode = parent
+            }
+        }
+        root.findFirstNonValidChar()
+    }.sumOf { illegalCharScores[it]!! }
+
+    println("part1 score: $score")
+}
+
+// Checks the node and all children below are valid, returns first non-valid char
+private fun Node<Char>.findFirstNonValidChar(): Char? {
+    openToClose.forEach { (openChar, closeChar) ->
+        val opens = children.filter { it.value == openChar }
+        val closes = children.filter { it.value == closeChar }
+        if (closes.size > opens.size) {
+            return closeChar
+        }
+    }
+
+    for (c in children) {
+        // any close brackets without an open?
+        c.findFirstNonValidChar()?.let { return it }
+    }
+    return null
 }
 
 private fun <T> Node<T>.printTree() {
