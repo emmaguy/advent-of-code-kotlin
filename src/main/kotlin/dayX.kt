@@ -1,9 +1,7 @@
 import java.io.File
 
-internal val xInput = File("src/main/resources/2021/dayX-sample.txt")
-    .readLines()
-internal val xSample = File("src/main/resources/2021/dayX.txt")
-    .readLines()
+internal val xInput = File("src/main/resources/2021/dayX.txt").readLines()
+internal val xSample = File("src/main/resources/2021/dayX-sample.txt").readLines()
 
 fun main() {
 
