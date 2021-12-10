@@ -172,3 +172,50 @@ class Node<T>(var value: T) {
         return "$value"
     }
 }
+
+/// ALT
+private val openToClose = mapOf(
+    '(' to ')',
+    '[' to ']',
+    '{' to '}',
+    '<' to '>',
+)
+
+private fun part1Alt(input: List<String>) {
+    val firstIncorrectClosingChar = mutableListOf<Char>()
+
+    for (row in input) {
+        val stack = mutableListOf<Char>()
+        for (it in row) {
+            // If char is a close, it should be of same type as top of stack
+            val isOpen = it == '(' || it == '[' || it == '{' || it == '<'
+            if (isOpen) {
+                stack.push(it)
+            } else {
+                if (it != openToClose[stack.peek()]) {
+                    println("invalid row $it, peek: ${stack.peek()}")
+                    firstIncorrectClosingChar.add(it)
+                    break
+                } else {
+                    stack.pop()
+                }
+            }
+        }
+    }
+
+    val errorScore = firstIncorrectClosingChar
+        .map {
+            when (it) {
+                ')' -> 3
+                ']' -> 57
+                '}' -> 1197
+                '>' -> 25137
+                else -> throw RuntimeException("invalid char: $it")
+            }
+        }.sum()
+    println("$errorScore")
+}
+
+fun <T> MutableList<T>.push(item: T) = this.add(this.count(), item)
+fun <T> MutableList<T>.pop(): T? = if (this.isNotEmpty()) this.removeAt(this.count() - 1) else null
+fun <T> MutableList<T>.peek(): T? = if (this.isNotEmpty()) this[this.count() - 1] else null
