@@ -1,4 +1,4 @@
-package `2019`
+package aoc2019
 
 import org.junit.Assert.*
 import org.junit.Test

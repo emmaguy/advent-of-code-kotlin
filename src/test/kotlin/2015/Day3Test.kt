@@ -1,4 +1,4 @@
-package `2015`
+package aoc2015
 
 import junit.framework.Assert.assertEquals
 import org.junit.Test
