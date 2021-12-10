@@ -10,6 +10,65 @@ fun main() {
     part1(listOf("{([(<{}[<>[]}>{[]{[(<()>"))
     part1(subsystemSample)
     part1(subsystemInput)
+
+    part2(subsystemInput)
+}
+
+private fun part2(input: List<String>) {
+    val rows = input.mapNotNull { row ->
+        println(row)
+
+        val root = Node(row[0])
+        var currentNode = root
+        for (i in 1 until row.length) {
+            val char = row[i]
+            val node = Node(char)
+            if (char == '(' || char == '{' || char == '[' || char == '<') {
+                currentNode.addChild(node)
+                currentNode = node
+            } else if (char == ')' || char == '}' || char == ']' || char == '>') {
+                val parent = currentNode.parent ?: return@mapNotNull null
+                parent.addChild(node)
+                currentNode = parent
+            }
+        }
+        root.printTree()
+        println()
+        print("missing closes: ")
+        val missingCloses = root.missingCloses() ?: return@mapNotNull null
+        val total = missingCloses
+            .map {
+                print("$it")
+                when (it) {
+                    ')' -> 1L
+                    ']' -> 2L
+                    '}' -> 3L
+                    '>' -> 4L
+                    else -> throw RuntimeException("invalid char: $it")
+                }
+            }
+            .reduce { acc, i -> acc * 5L + i }
+
+        println()
+        println("total: $total")
+        total
+    }.sorted().toList()
+
+    println("$rows")
+    println("half: ${rows[rows.size / 2]}")
+}
+
+private fun Node<Char>.isValid(): Char? {
+    closeCharOrNull(openChar = '(', closeChar = ')', children)?.let { return it }
+    closeCharOrNull(openChar = '[', closeChar = ']', children)?.let { return it }
+    closeCharOrNull(openChar = '{', closeChar = '}', children)?.let { return it }
+    closeCharOrNull(openChar = '<', closeChar = '>', children)?.let { return it }
+
+    for (c in children) {
+        // any close brackets without an open?
+        c.isValid()?.let { return it }
+    }
+    return null
 }
 
 private fun part1(input: List<String>) {
@@ -46,15 +105,40 @@ private fun part1(input: List<String>) {
     println("$groups")
 }
 
-private fun Node<Char>.isValid(): Char? {
-    closeCharOrNull(openChar = '(', closeChar = ')', children)?.let { return it }
-    closeCharOrNull(openChar = '[', closeChar = ']', children)?.let { return it }
-    closeCharOrNull(openChar = '{', closeChar = '}', children)?.let { return it }
-    closeCharOrNull(openChar = '<', closeChar = '>', children)?.let { return it }
+private fun Node<Char>.missingCloses(): List<Char>? {
+    if (children.isEmpty()) return emptyList()
+    val chars = mutableListOf<Char>()
+    children.forEach { c ->
+        val list = c.missingCloses() ?: return null
+        chars.addAll(list)
+    }
 
-    for (c in children) {
-        // any close brackets without an open?
-        c.isValid()?.let { return it }
+    // exclude corrupt lines
+    closeCharOrNull(openChar = '(', closeChar = ')', children)?.let { return null }
+    closeCharOrNull(openChar = '[', closeChar = ']', children)?.let { return null }
+    closeCharOrNull(openChar = '{', closeChar = '}', children)?.let { return null }
+    closeCharOrNull(openChar = '<', closeChar = '>', children)?.let { return null }
+
+    openCharOrNull(openChar = '[', closeChar = ']', children)?.let { chars.add(it) }
+    openCharOrNull(openChar = '(', closeChar = ')', children)?.let { chars.add(it) }
+    openCharOrNull(openChar = '{', closeChar = '}', children)?.let { chars.add(it) }
+    openCharOrNull(openChar = '<', closeChar = '>', children)?.let { chars.add(it) }
+
+    if (parent == null) {
+        if (value == '(') chars.add(')')
+        if (value == '[') chars.add(']')
+        if (value == '{') chars.add('}')
+        if (value == '<') chars.add('>')
+    }
+
+    return chars
+}
+
+private fun openCharOrNull(openChar: Char, closeChar: Char, children: MutableList<Node<Char>>): Char? {
+    val opens = children.filter { it.value == openChar }
+    val closes = children.filter { it.value == closeChar }
+    if (opens.size > closes.size) {
+        return closeChar
     }
     return null
 }
