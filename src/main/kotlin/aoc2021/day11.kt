@@ -2,64 +2,68 @@ package aoc2021
 
 import java.io.File
 
-internal val xInput = File("src/main/resources/2021/day11.txt").readLines()
-internal val xSample = File("src/main/resources/2021/day11-sample.txt").readLines()
+internal val octopusInput = File("src/main/resources/2021/day11.txt").readLines()
+internal val octopusSample = File("src/main/resources/2021/day11-sample.txt").readLines()
 
 fun main() {
-    part1(xSample, days = 2)
+    part1(octopusSample, days = 10)
+    part1(octopusInput, days = 100)
 }
 
 private fun part1(input: List<String>, days: Int) {
     val octopusPositions = input.map { it.map { Octopus(value = it.digitToInt()) }.toMutableList() }
 
-    for (day in 0 until days) {
-        println("Day $day")
-        octopusPositions.forEach { println(it) }
+    for ((rowIndex, row) in octopusPositions.withIndex()) {
+        for ((columnIndex, octopus) in row.withIndex()) {
+            val adjacentOctopuses = mutableListOf<Octopus>()
+            AdjacentDirection.values().forEach { direction ->
+                val (rOffset, cOffset) = direction.offsetForDirection()
+                val r = rowIndex + rOffset
+                val c = columnIndex + cOffset
 
-        for (row in octopusPositions) {
-            for (octopus in row) {
-                octopus.value++
-            }
-        }
-
-        for ((rowIndex, row) in octopusPositions.withIndex()) {
-            for ((columnIndex, octopus) in row.withIndex()) {
-                if (octopus.value > 9) {
-                    octopus.flashed = true
-                    AdjacentDirection.values().forEach { direction ->
-                        val (rOffset, cOffset) = direction.offsetForDirection()
-                        val r = rowIndex + rOffset
-                        val c = columnIndex + cOffset
-
-                        if (c >= 0 && c < octopusPositions[rowIndex].size &&
-                            r >= 0 && r < octopusPositions.size
-                        ) {
-                            val adjacentOctopus = octopusPositions[r][c]
-                            adjacentOctopus.value++
-                            if (!adjacentOctopus.flashed && adjacentOctopus.value > 9) {
-                                adjacentOctopus.flashed = true
-                            }
-                        }
-                    }
+                if (c >= 0 && c < octopusPositions[rowIndex].size &&
+                    r >= 0 && r < octopusPositions.size
+                ) {
+                    adjacentOctopuses.add(octopusPositions[r][c])
                 }
             }
+            octopus.adjacents = adjacentOctopuses
         }
-
-        var count = 0
-        for (row in octopusPositions) {
-            for (octopus in row) {
-                if (octopus.flashed) {
-                    count++
-                    octopus.flashed = false
-                    octopus.value = 0
-                }
-            }
-        }
-        println("flash count $count\n")
     }
 
-    println("Day ${days}:")
-    octopusPositions.forEach { println(it) }
+    println("$octopusPositions")
+
+    var totalFlashes = 0
+    for (day in 0 until days) {
+        println("Day $day")
+        // Increase energy by 1
+        octopusPositions.forEach { it.forEach { it.value++ } }
+
+        octopusPositions.forEach {
+            it.forEach { octopus -> flash(octopus) }
+        }
+
+        octopusPositions.forEach {
+            it.forEach { octopus ->
+                if (octopus.flashed) {
+                    octopus.flashed = false
+                    octopus.value = 0
+                    totalFlashes++
+                }
+            }
+        }
+        println("Flashes $totalFlashes")
+    }
+}
+
+private fun flash(octopus: Octopus) {
+    if (octopus.value > 9 && !octopus.flashed) {
+        octopus.flashed = true
+        octopus.adjacents.forEach {
+            it.value++
+            flash(it)
+        }
+    }
 }
 
 private fun AdjacentDirection.offsetForDirection(): Pair<Int, Int> {
@@ -77,7 +81,5 @@ private fun AdjacentDirection.offsetForDirection(): Pair<Int, Int> {
 
 enum class AdjacentDirection { N, NE, E, SE, S, SW, W, NW }
 data class Octopus(var value: Int, var flashed: Boolean = false) {
-    override fun toString(): String {
-        return "$value"
-    }
+    var adjacents: List<Octopus> = emptyList()
 }
