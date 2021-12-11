@@ -8,9 +8,55 @@ internal val octopusSample = File("src/main/resources/2021/day11-sample.txt").re
 fun main() {
     part1(octopusSample, days = 10)
     part1(octopusInput, days = 100)
+    part2(octopusSample, days = 200)
+    part2(octopusInput, days = 1000)
+}
+
+private fun part2(input: List<String>, days: Int) {
+    val octopuses = findAdjacents(input).flatten()
+
+    for (day in 0 until days) {
+        println("Day $day")
+        octopuses.forEach { octopus -> octopus.value++ }
+        octopuses.forEach { octopus -> flash(octopus) }
+
+        var flashes = 0
+        octopuses.forEach { octopus ->
+            if (octopus.flashed) {
+                octopus.flashed = false
+                octopus.value = 0
+                flashes++
+            }
+        }
+        if (flashes == octopuses.size) {
+            println("done! All ${octopuses.size} octupuses flashed together on day ${day + 1}")
+            return
+        }
+    }
 }
 
 private fun part1(input: List<String>, days: Int) {
+    val octopuses = findAdjacents(input).flatten()
+
+    var totalFlashes = 0
+    for (day in 0 until days) {
+        println("Day $day")
+
+        octopuses.forEach { octopus -> octopus.value++ }
+        octopuses.forEach { octopus -> flash(octopus) }
+
+        octopuses.forEach { octopus ->
+            if (octopus.flashed) {
+                octopus.flashed = false
+                octopus.value = 0
+                totalFlashes++
+            }
+        }
+        println("Flashes $totalFlashes")
+    }
+}
+
+private fun findAdjacents(input: List<String>): List<MutableList<Octopus>> {
     val octopusPositions = input.map { it.map { Octopus(value = it.digitToInt()) }.toMutableList() }
 
     for ((rowIndex, row) in octopusPositions.withIndex()) {
@@ -30,30 +76,7 @@ private fun part1(input: List<String>, days: Int) {
             octopus.adjacents = adjacentOctopuses
         }
     }
-
-    println("$octopusPositions")
-
-    var totalFlashes = 0
-    for (day in 0 until days) {
-        println("Day $day")
-        // Increase energy by 1
-        octopusPositions.forEach { it.forEach { it.value++ } }
-
-        octopusPositions.forEach {
-            it.forEach { octopus -> flash(octopus) }
-        }
-
-        octopusPositions.forEach {
-            it.forEach { octopus ->
-                if (octopus.flashed) {
-                    octopus.flashed = false
-                    octopus.value = 0
-                    totalFlashes++
-                }
-            }
-        }
-        println("Flashes $totalFlashes")
-    }
+    return octopusPositions
 }
 
 private fun flash(octopus: Octopus) {
