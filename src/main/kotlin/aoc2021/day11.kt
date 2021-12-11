@@ -6,37 +6,63 @@ internal val xInput = File("src/main/resources/2021/day11.txt").readLines()
 internal val xSample = File("src/main/resources/2021/day11-sample.txt").readLines()
 
 fun main() {
-    part1(xSample)
+    part1(xSample, days = 2)
 }
 
-private fun part1(input: List<String>) {
-    val octopuses = input.toOctupuses()
+private fun part1(input: List<String>, days: Int) {
+    val octopusPositions = input.map { it.map { Octopus(value = it.digitToInt()) }.toMutableList() }
 
-    println("$octopuses")
-}
+    for (day in 0 until days) {
+        println("Day $day")
+        octopusPositions.forEach { println(it) }
 
-internal fun List<String>.toOctupuses(): List<Octopus> {
-    val points = mutableListOf<Octopus>()
-    for (rowIndex in 0 until this.size) {
-        for ((columnIndex, digit) in this[rowIndex].withIndex()) {
-            val adjacentOctopuses = mutableListOf<Int>()
+        for (row in octopusPositions) {
+            for (octopus in row) {
+                octopus.value++
+            }
+        }
 
-            AdjacentDirection.values().forEach { direction ->
-                val (rOffset, cOffset) = direction.move()
-                val r = rowIndex + rOffset
-                val c = columnIndex + cOffset
+        for ((rowIndex, row) in octopusPositions.withIndex()) {
+            for ((columnIndex, octopus) in row.withIndex()) {
+                if (octopus.value > 9) {
+                    octopus.flashed = true
+                    AdjacentDirection.values().forEach { direction ->
+                        val (rOffset, cOffset) = direction.offsetForDirection()
+                        val r = rowIndex + rOffset
+                        val c = columnIndex + cOffset
 
-                if (c >= 0 && c < this[rowIndex].length && r in indices) {
-                    adjacentOctopuses.add(this[r][c].digitToInt())
+                        if (c >= 0 && c < octopusPositions[rowIndex].size &&
+                            r >= 0 && r < octopusPositions.size
+                        ) {
+                            val adjacentOctopus = octopusPositions[r][c]
+                            adjacentOctopus.value++
+                            if (!adjacentOctopus.flashed && adjacentOctopus.value > 9) {
+                                adjacentOctopus.flashed = true
+                            }
+                        }
+                    }
                 }
             }
-            points.add(Octopus(value = digit.digitToInt(), adjacentPoints = adjacentOctopuses))
         }
+
+        var count = 0
+        for (row in octopusPositions) {
+            for (octopus in row) {
+                if (octopus.flashed) {
+                    count++
+                    octopus.flashed = false
+                    octopus.value = 0
+                }
+            }
+        }
+        println("flash count $count\n")
     }
-    return points
+
+    println("Day ${days}:")
+    octopusPositions.forEach { println(it) }
 }
 
-private fun AdjacentDirection.move(): Pair<Int, Int> {
+private fun AdjacentDirection.offsetForDirection(): Pair<Int, Int> {
     return when (this) {
         AdjacentDirection.N -> -1 to 0
         AdjacentDirection.NE -> -1 to 1
@@ -50,4 +76,8 @@ private fun AdjacentDirection.move(): Pair<Int, Int> {
 }
 
 enum class AdjacentDirection { N, NE, E, SE, S, SW, W, NW }
-data class Octopus(val value: Int, val adjacentPoints: List<Int>)
+data class Octopus(var value: Int, var flashed: Boolean = false) {
+    override fun toString(): String {
+        return "$value"
+    }
+}
