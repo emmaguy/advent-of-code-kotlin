@@ -7,6 +7,10 @@ fun main() {
 
 }
 
+private fun part1(input: List<String>) {
+
+}
+
 internal fun List<String>.toWhatever(): List<Int> {
     return first().split(",").map { it.toInt() }
 }
