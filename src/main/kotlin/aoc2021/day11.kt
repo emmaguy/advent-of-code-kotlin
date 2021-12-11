@@ -13,7 +13,7 @@ fun main() {
 }
 
 private fun part2(input: List<String>, days: Int) {
-    val octopuses = findAdjacents(input).flatten()
+    val octopuses = findAdjacents(input)
 
     for (day in 0 until days) {
         println("Day $day")
@@ -36,7 +36,7 @@ private fun part2(input: List<String>, days: Int) {
 }
 
 private fun part1(input: List<String>, days: Int) {
-    val octopuses = findAdjacents(input).flatten()
+    val octopuses = findAdjacents(input)
 
     var totalFlashes = 0
     for (day in 0 until days) {
@@ -56,7 +56,7 @@ private fun part1(input: List<String>, days: Int) {
     }
 }
 
-private fun findAdjacents(input: List<String>): List<MutableList<Octopus>> {
+private fun findAdjacents(input: List<String>): List<Octopus> {
     val octopusPositions = input.map { it.map { Octopus(value = it.digitToInt()) }.toMutableList() }
 
     for ((rowIndex, row) in octopusPositions.withIndex()) {
@@ -76,7 +76,7 @@ private fun findAdjacents(input: List<String>): List<MutableList<Octopus>> {
             octopus.adjacents = adjacentOctopuses
         }
     }
-    return octopusPositions
+    return octopusPositions.flatten()
 }
 
 private fun flash(octopus: Octopus) {
