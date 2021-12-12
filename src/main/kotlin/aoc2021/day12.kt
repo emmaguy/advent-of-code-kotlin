@@ -7,10 +7,10 @@ internal val caveMapSample = File("src/main/resources/2021/day12-sample.txt").re
 
 fun main() {
     part1(parseGraph(caveMapSample))
-//    part1(parseGraph(caveMapInput))
+    part1(parseGraph(caveMapInput))
 
     part2(parseGraph(caveMapSample))
-//    part2(parseGraph(caveMapInput))
+    part2(parseGraph(caveMapInput))
 }
 
 private fun part1(graph: Map<String, List<String>>) {
@@ -47,8 +47,13 @@ private fun dfsPart2(
     }
 
     return graph[cave]!!
-        .filter { nextCave -> nextCave !in visited + cave || nextCave.isBigCave() }
-        .flatMap { nextCave -> dfs(graph, cave = nextCave, visited = visited + cave) }
+        .filter { it != "start" }
+        .filter { nextCave ->
+            nextCave !in visited + cave ||
+                    nextCave.isBigCave() ||
+                    !(visited + cave).filter { it.isSmallCave() }.groupingBy { it }.eachCount().any { it.value >= 2 }
+        }
+        .flatMap { nextCave -> dfsPart2(graph, cave = nextCave, visited = visited + cave) }
 }
 
 private fun dfs(
