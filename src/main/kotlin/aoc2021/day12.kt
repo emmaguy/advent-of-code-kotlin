@@ -7,47 +7,43 @@ internal val caveMapSample = File("src/main/resources/2021/day12-sample.txt").re
 
 fun main() {
     part1(caveMapSample)
+//    part1(caveMapInput)
 }
 
 private fun part1(input: List<String>) {
-    // A-b
-    val paths = input.map { it.split("-")[0] to it.split("-")[1] }
+    // A-b & b-A
+    val forwardPaths = input.map { it.split("-")[0] to it.split("-")[1] }
+    val reversePaths = input.map { it.split("-")[1] to it.split("-")[0] }
+
+    val graph = (forwardPaths + reversePaths)
         .groupBy({ it.first }, { it.second })
 
-    // b-A
-    val reversePaths = input.map { it.split("-")[0] to it.split("-")[1] }
-        .filter {
-            it.second != "end" && it.second != "start" &&
-                    it.first != "end" && it.first != "start"
-        }
-        .groupBy({ it.second }, { it.first })
+    val allPaths = dfs(graph, cave = "start", emptyList())
+    allPaths.forEach { println("path: ${it.joinToString(",")}") }
 
-    val allPaths = paths + reversePaths
-
-    val smallCavesVisited = mutableSetOf<String>()
-    visit(currentCave = "start", allPaths, smallCavesVisited)
+    val count = allPaths.count { it.any { cave -> cave.isSmallCave() } }
+    println("count: $count")
 }
 
-private fun visit(currentCave: String, paths: Map<String, List<String>>, smallCavesVisited: MutableSet<String>) {
-    if (currentCave == "end") {
-        return
+private fun dfs(
+    graph: Map<String, List<String>>,
+    cave: String,
+    visited: List<String>,
+): List<List<String>> {
+    println("visited: $cave")
+    if (cave == "end") {
+        return listOf(visited + cave)
     }
 
-    if (currentCave.isSmallCave()) {
-        smallCavesVisited.add(currentCave)
-    }
-
-    val possibles = paths[currentCave] ?: emptyList()
-    possibles.forEach {
-        if (!smallCavesVisited.contains(it)) {
-            if (!currentCave.isSmallCave() || (currentCave.isSmallCave() && !it.isSmallCave())) {
-                println("$currentCave-$it")
-                visit(currentCave = it, paths = paths, smallCavesVisited = smallCavesVisited)
-            }
-        }
-    }
+    return graph[cave]!!
+        .filter { nextCave -> nextCave !in visited + cave || nextCave.isBigCave() }
+        .flatMap { nextCave -> dfs(graph, cave = nextCave, visited = visited + cave) }
 }
 
 private fun String.isSmallCave(): Boolean {
-    return length == 1 && first().isLowerCase()
+    return first().isLowerCase()
+}
+
+private fun String.isBigCave(): Boolean {
+    return first().isUpperCase()
 }
